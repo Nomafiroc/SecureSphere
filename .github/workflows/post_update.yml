@@ -1,0 +1,29 @@
+name: Automated LinkedIn Log
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  post-to-linkedin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          
+      - name: Install Dependencies
+        run: pip install requests
+        
+      - name: Execute Post
+        env:
+          LINKEDIN_TOKEN: ${{ secrets.LINKEDIN_TOKEN }}
+          LINKEDIN_URN: ${{ secrets.LINKEDIN_URN }}
+        run: |
+          # Using the git commit message as the post text
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          python linkedin_post.py --message "🚀 SecureSphere Update: $COMMIT_MSG"
