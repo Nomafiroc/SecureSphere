@@ -1,3 +1,9 @@
+# Add these lines at the very top of your file:
+on:
+  push:
+    branches:
+      - main
+      
 jobs:
   post-to-linkedin:
     runs-on: ubuntu-latest
