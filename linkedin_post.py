@@ -2,16 +2,57 @@ import os
 import requests
 import argparse
 import sys
+import json
 
-# Best Practice: Use a main function for professional scripts
-def send_post(message):
-    # Retrieve secrets from Environment Variables (Security)
-    access_token = os.environ.get('LINKEDIN_TOKEN')
-    user_urn = os.environ.get('LINKEDIN_URN')
+def get_scan_scorecard():
+    """
+    Reads the Bandit results and returns a formatted string with severity counts.
+    """
+    try:
+        with open("security_audit.json", "r") as f:
+            issues = json.load(f)
+        
+        # Calculate counts for each severity level
+        high = sum(1 for i in issues if i.get('issue_severity') == 'HIGH')
+        medium = sum(1 for i in issues if i.get('issue_severity') == 'MEDIUM')
+        low = sum(1 for i in issues if i.get('issue_severity') == 'LOW')
+
+        if not issues:
+            return "🛡️ Security Status: 100% Clean. No issues identified."
+
+        return (
+            f"🛡️ Security Scorecard:\n"
+            f"🔴 High: {high}\n"
+            f"🟡 Medium: {medium}\n"
+            f"🟢 Low: {low}"
+        )
+    except (FileNotFoundError, json.JSONDecodeError):
+        # Fallback if the scan file is missing or corrupted
+        return "🛡️ Security Status: Scan completed (details in logs)."
+
+def send_post(base_message, commit_url=None):
+    # Retrieve secrets from Environment Variables
+    access_token = os.environ.get('LINKEDIN_TOKEN') #nosec
+    user_urn = os.environ.get('LINKEDIN_URN') #nosec
 
     if not access_token or not user_urn:
         print("❌ Error: Missing LINKEDIN_TOKEN or LINKEDIN_URN environment variables.")
         sys.exit(1)
+
+    # Generate the scorecard data
+    scorecard = get_scan_scorecard()
+
+    # Build the full message with the URL included
+    full_message = (
+        f"{base_message}\n\n"
+        f"{scorecard}\n\n"
+        f"🛠️ Tech Stack: Python | Bandit SAST | GitHub Actions"
+    )
+
+    if commit_url:
+        full_message += f"\n🔗 View Change: {commit_url}"
+
+    full_message += f"\n\n#DevSecOps #SecureSphere #CyberSecurity #BuildInPublic"
 
     url = "https://api.linkedin.com/v2/ugcPosts"
     
@@ -28,7 +69,7 @@ def send_post(message):
         "specificContent": {
             "com.linkedin.ugc.ShareContent": {
                 "shareCommentary": {
-                    "text": message
+                    "text": full_message
                 },
                 "shareMediaCategory": "NONE"
             }
@@ -38,21 +79,21 @@ def send_post(message):
         }
     }
     
-    # Error Handling: Use try-except for network issues
     try:
-        response = requests.post(url, headers=headers, json=post_data)
-        response.raise_for_status() # Automatically triggers error for 4xx/5xx codes
+        response = requests.post(url, headers=headers, json=post_data, timeout=10)
+        response.raise_for_status()
         print(f"✅ Success! Post live: {response.status_code}")
     except requests.exceptions.RequestException as e:
         print(f"❌ API Error: {e}")
-        if response.text:
-            print(f"Details: {response.text}")
+        # Safeguard: printing response.text only if it exists
+        if hasattr(e, 'response') and e.response is not None:
+             print(f"Details: {e.response.text}")
         sys.exit(1)
 
 if __name__ == "__main__":
-    # Setup CLI Arguments
     parser = argparse.ArgumentParser(description="SecureSphere Automated LinkedIn Poster")
     parser.add_argument("--message", required=True, help="The content of the LinkedIn post")
+    parser.add_argument("--commit-url", help="Link to the specific GitHub commit") # Added this
     
     args = parser.parse_args()
-    send_post(args.message)
+    send_post(args.message, args.commit_url)

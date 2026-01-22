@@ -1,3 +1,11 @@
+# Security test files
+test_vuln.py
+
+# Generated security reports
+security_report.json
+security_audit.json
+
+# Environment and virtual environment files
 .env
 venv/
 __pycache__/
