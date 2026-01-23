@@ -1,34 +1,44 @@
-# Add these lines at the very top of your file:
+name: SecureSphere CI/CD
+
 on:
   push:
-    branches:
-      - main
-      
+    branches: [ main ]
+
 jobs:
-  post-to-linkedin:
+  security_scan:
+    name: Run Bandit SAST Scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/set-up-python@v4
         with:
           python-version: '3.11'
 
       - name: Install Dependencies
         run: |
-          pip install -r requirements.txt
-          pip install bandit  # Ensure the runner has the scanner
+          pip install bandit
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Run Security Scan
-        run: python scanner_engine.py
+      - name: Execute Security Scan
+        run: python scanner_engine.py  # This will exit 1 and fail the job if issues are found
 
- #     - name: Send LinkedIn Update
- #       env:
- #         LINKEDIN_TOKEN: ${{ secrets.LINKEDIN_TOKEN }}
- #         LINKEDIN_URN: ${{ secrets.LINKEDIN_URN }}
- #       run: |
+  linkedin_notification:
+    name: Send LinkedIn Update
+    runs-on: ubuntu-latest
+    needs: security_scan  # THIS IS THE KEY: It only runs if the scan job succeeds
+    if: success()         # Extra safety: only run on success
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Post to LinkedIn
+        env:
+          LINKEDIN_TOKEN: ${{ secrets.LINKEDIN_TOKEN }}
+          LINKEDIN_URN: ${{ secrets.LINKEDIN_URN }}
+        run: |
  #         # 1. Capture the latest commit message
  #         COMMIT_MSG=$(git log -1 --pretty=%B)
  #         
