@@ -12,20 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+      # Build the scanner image using your Dockerfile
+      - name: Build Docker Image
+        run: docker build -t securesphere-scanner .
 
-      - name: Install Dependencies
-        run: |
-          pip install bandit
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
-      - name: Execute Security Scan
-        run: python scanner_engine.py  # This will exit 1 and fail the job if issues are found
+      # Execute the scan inside the isolated container
+      - name: Run Containerized Scan
+        run: docker run securesphere-scanner
 
   linkedin_notification:
     name: Send LinkedIn Update
