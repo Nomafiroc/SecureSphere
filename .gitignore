@@ -1,6 +1,8 @@
 # Security test files
 test_vuln.py
+
 security_test.py
+
 # Generated security reports
 security_report.json
 security_audit.json
