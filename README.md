@@ -21,3 +21,5 @@ SecureSphere is a modular DevSecOps ecosystem designed to automate security scan
 
 ## 👨‍💻 Author
 Abdul Sami Qasim - Cybersecurity Major
+
+![BanditScan](https://github.com/Nomafiroc/SecureSphere/actions/workflows/post_update.yml/badge.svg)
