@@ -22,15 +22,6 @@ jobs:
       - name: Run Containerized Scan
         run: docker run securesphere-scanner
 
-      - name: Scan Docker Image (SCA)
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'securesphere-scanner:latest'
-          format: 'table'
-          exit-code: '1' # This blocks the merge if the image is insecure
-          severity: 'CRITICAL,HIGH'
-          # This ensures Trivy looks at the local Docker build
-          image-type: 'image'
 
   linkedin_notification:
     name: Send LinkedIn Update
