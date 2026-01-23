@@ -82,7 +82,7 @@ def send_post(base_message, commit_url=None):
     try:
         response = requests.post(url, headers=headers, json=post_data, timeout=10)
         response.raise_for_status()
-        print(f"✅ Success! Post live: {response.status_code}")
+        #print(f"✅ Success! Post live: {response.status_code}")
     except requests.exceptions.RequestException as e:
         print(f"❌ API Error: {e}")
         # Safeguard: printing response.text only if it exists
