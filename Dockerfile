@@ -4,9 +4,18 @@ FROM python:3.11-slim
 # Step 2: Set the working directory inside the container
 WORKDIR /app
 
+# 1. Patch OS Vulnerabilities (Fixes libc6 / libc-bin)
+# We update the package list and upgrade existing libraries
+RUN apt-get update && apt-get upgrade -y && \
+    rm -rf /var/lib/apt/lists/*
+
+# 2. Patch Python Tooling (Fixes wheel / jaraco.context)
+# Upgrading pip and wheel often resolves secondary dependency CVEs
+RUN pip install --no-cache-dir --upgrade pip wheel bandit
+
 # Step 3: Install Bandit directly
 # This avoids needing a requirements.txt just for the scanner
-RUN pip install --no-cache-dir bandit
+# RUN pip install --no-cache-dir bandit
 
 # Step 4: Copy only the necessary project files
 # .dockerignore will handle the exclusions
