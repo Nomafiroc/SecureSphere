@@ -1,0 +1,14 @@
+#!/bin/sh
+echo "[SecureSphere] Running pre-commit security audit..."
+
+# Run the scanner
+python scanner_engine.py
+
+# Capture the exit code
+if [ $? -ne 0 ]; then
+  echo "COMMIT ABORTED: High/Medium vulnerabilities detected. Fix them to proceed."
+  exit 1
+fi
+
+echo "No critical vulnerabilities found. Proceeding with commit."
+exit 0
