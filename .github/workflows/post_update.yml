@@ -23,28 +23,28 @@ jobs:
         run: docker run securesphere-scanner
 
 
-  linkedin_notification:
-    name: Send LinkedIn Update
-    runs-on: ubuntu-latest
-    needs: security_scan  # THIS IS THE KEY: It only runs if the scan job succeeds
-    if: success()         # Extra safety: only run on success
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Post to LinkedIn
-        env:
-          LINKEDIN_TOKEN: ${{ secrets.LINKEDIN_TOKEN }}
-          LINKEDIN_URN: ${{ secrets.LINKEDIN_URN }}
-        run: |
- #         # 1. Capture the latest commit message
- #         COMMIT_MSG=$(git log -1 --pretty=%B)
- #         
- #         # 2. Construct the direct URL to the specific commit
- #         # Format: https://github.com/your-user/SecureSphere/commit/sha-id
- #         COMMIT_URL="${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
- #         
- #         # 3. Pass both the message and the URL to your script
- #         python linkedin_post.py \
- #           --message "🚀 SecureSphere Update: $COMMIT_MSG" \
- #           --commit-url "$COMMIT_URL"
+#  linkedin_notification:
+#    name: Send LinkedIn Update
+#    runs-on: ubuntu-latest
+#    needs: security_scan  # THIS IS THE KEY: It only runs if the scan job succeeds
+#    if: success()         # Extra safety: only run on success
+#    steps:
+#      - name: Checkout Code
+#        uses: actions/checkout@v3
+#
+#      - name: Post to LinkedIn
+#        env:
+#          LINKEDIN_TOKEN: ${{ secrets.LINKEDIN_TOKEN }}
+#          LINKEDIN_URN: ${{ secrets.LINKEDIN_URN }}
+#        run: |
+#         # 1. Capture the latest commit message
+#         COMMIT_MSG=$(git log -1 --pretty=%B)
+#         
+#         # 2. Construct the direct URL to the specific commit
+#         # Format: https://github.com/your-user/SecureSphere/commit/sha-id
+#         COMMIT_URL="${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
+#         
+#         # 3. Pass both the message and the URL to your script
+#         python linkedin_post.py \
+#           --message "🚀 SecureSphere Update: $COMMIT_MSG" \
+#           --commit-url "$COMMIT_URL"
